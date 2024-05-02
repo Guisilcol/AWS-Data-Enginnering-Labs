@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    container_name: aws_labs_sqlserver
+    build:
+      context: ./db/
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  kafka:
+    container_name: aws_labs_kafka
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_CREATE_TOPICS: "ticket_sales:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    container_name: aws_labs_zookeeper
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
+  python_api:
+    container_name: aws_labs_api
+    build:
+      context: ./api/
+    ports:
+      - "5000:5000"
+
+  python_producer:
+    container_name: aws_labs_producer
+    build:
+      context: ./producer/
+
+volumes:
+  sql_data:
