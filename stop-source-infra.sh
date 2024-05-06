@@ -1,1 +1,0 @@
-docker compose --file './docker_assets/docker-compose.yaml' --project-name 'docker_assets' down 
