@@ -1,10 +1,73 @@
-start-source-infra:
-	docker-compose up
+DEV_CONTAINER_NAME=aws_labs_dev_container
+DEV_CONTAINER_IMAGE_NAME=aws_labs_dev_container:v1
+NETWORK_NAME=aws_labs_network
+
+# Host only 
+
+create-docker-network:
+	docker network ls | grep -qw "$(NETWORK_NAME)" || docker network create "$(NETWORK_NAME)"
+
+start-source-infra: create-docker-network
+	docker-compose up &
 	
-stop-source-infra:
-	docker compose down 
+stop-source-infra: create-docker-network
+	docker-compose down &
 
-recreate-source-infra:
-	docker compose down
-	docker compose up --build
+recreate-source-infra: create-docker-network
+	docker-compose down 
+	docker-compose up --build & 
+	
+start-dev-container: create-docker-network
+	docker build -t $(DEV_CONTAINER_IMAGE_NAME) ./docker_assets/dev_container
 
+	docker run -t -d \
+	-v ~/.aws:/home/glue_user/.aws \
+	-v ./:/home/glue_user/workspace/ \
+	-e AWS_PROFILE=$PROFILE_NAME \
+	-e DISABLE_SSL=true \
+	--rm \
+	-p 4040:4040 \
+	-p 18080:18080 \
+	--network $(NETWORK_NAME) \
+	--name $(DEV_CONTAINER_NAME) \
+	$(DEV_CONTAINER_IMAGE_NAME) 
+
+	docker exec -u 0 $(DEV_CONTAINER_NAME) bash -c 'chown -R glue_user /home/glue_user/workspace'
+	docker exec -u 0 $(DEV_CONTAINER_NAME) bash -c 'chown -R glue_user /tmp/spark-events'
+
+stop-dev-container:
+	docker kill $(DEV_CONTAINER_NAME)
+
+#Dev container only
+create-venvs:
+	pyenv versions --bare | grep -q "^lambda_env$$" || pyenv virtualenv 3.10 lambda_env
+	pyenv versions --bare | grep -q "^python_shell_env$$" || pyenv virtualenv 3.10 python_shell_env
+	pyenv versions --bare | grep -q "^spark_env$$" || pyenv virtualenv 3.10 spark_env
+
+	pyenv local lambda_env 
+	rm -rf ./.venv/lambda_env
+	python -m venv ./.venv/lambda_env
+	-[ -f ./datalake/lambda/requirements.txt ] && sudo pip install -r ./datalake/lambda/requirements.txt
+
+	pyenv local python_shell_env
+	rm -rf ./.venv/python_shell_env
+	python -m venv ./.venv/python_shell_env
+	-[ -f ./datalake/python_shell/requirements.txt ] && pip install -r ./datalake/python_shell/requirements.txt
+
+	pyenv local spark_env
+	rm -rf ./.venv/spark_env
+	python -m venv ./.venv/spark_env
+	-[ -f ./datalake/spark/requirements.txt ] && pip install -r ./datalake/spark/requirements.txt
+	
+update-requirements:
+	pyenv local lambda_env 
+	pyenv exec pip freeze > ./datalake/lambda/requirements.txt
+
+	pyenv local python_shell_env
+	pyenv exec pip freeze > ./datalake/python_shell/requirements.txt
+
+	pyenv local spark_env
+	pyenv exec pip freeze > ./datalake/spark/requirements.txt
+
+
+	

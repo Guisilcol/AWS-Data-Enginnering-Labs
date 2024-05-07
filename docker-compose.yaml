@@ -9,6 +9,8 @@ services:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
+    networks:
+      - aws_labs_network
 
   zookeeper:
     container_name: aws_labs_zookeeper
@@ -17,6 +19,8 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - aws_labs_network
 
   kafka:
     container_name: aws_labs_kafka
@@ -35,6 +39,8 @@ services:
 
     depends_on:
       - zookeeper
+    networks:
+      - aws_labs_network
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -47,6 +53,8 @@ services:
       - KAFKA_CLUSTERS_0_NAME=producer_aws_labs_kafka_ui_cluster
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    networks:
+      - aws_labs_network
 
   python-producer:
     container_name: aws_labs_producer
@@ -54,6 +62,8 @@ services:
       - kafka-ui
     build:
       context: ./docker_assets/producer/
+    networks:
+      - aws_labs_network
 
   python_api:
     container_name: aws_labs_api
@@ -61,6 +71,12 @@ services:
       context: ./docker_assets/api/
     ports:
       - "8000:8000"
+    networks:
+      - aws_labs_network
 
 volumes:
   sql_data:
+
+networks:
+  aws_labs_network:
+    external: true
