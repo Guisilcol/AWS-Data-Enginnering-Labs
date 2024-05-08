@@ -47,7 +47,7 @@ create-venvs:
 	pyenv local lambda_env 
 	rm -rf ./.venv/lambda_env
 	python -m venv ./.venv/lambda_env
-	-[ -f ./datalake/lambda/requirements.txt ] && sudo pip install -r ./datalake/lambda/requirements.txt
+	-[ -f ./datalake/lambda/requirements.txt ] && pip install -r ./datalake/lambda/requirements.txt
 
 	pyenv local python_shell_env
 	rm -rf ./.venv/python_shell_env
