@@ -2,11 +2,11 @@ DEV_CONTAINER_NAME=aws_labs_dev_container
 DEV_CONTAINER_IMAGE_NAME=aws_labs_dev_container:v1
 NETWORK_NAME=aws_labs_network
 
-# Host only 
-all:
+# Host only
+all: 
 
 create-docker-network:
-	docker network ls | grep -qw "$(NETWORK_NAME)" || docker network create "$(NETWORK_NAME)"
+	powershell -Command "$$networkExists = docker network ls | Select-String -Pattern 'aws_labs_network'; if (-Not $$networkExists) { docker network create 'aws_labs_network' }"
 
 start-source-infra: create-docker-network
 	docker-compose up &
@@ -21,20 +21,23 @@ recreate-source-infra: create-docker-network
 start-dev-container: create-docker-network
 	docker build -t $(DEV_CONTAINER_IMAGE_NAME) ./docker_assets/dev_container
 
-	docker run -t -d \
-	-v ~/.aws:/home/glue_user/.aws \
-	-v ./:/home/glue_user/workspace/ \
-	-e AWS_PROFILE=$PROFILE_NAME \
+	docker run \
+	-t -d \
+	-v .:/home/glue_user/workspace/ \
+	-e AWS_PROFILE=ROFILE_NAME \
 	-e DISABLE_SSL=true \
 	--rm \
 	-p 4040:4040 \
 	-p 18080:18080 \
-	--network $(NETWORK_NAME) \
-	--name $(DEV_CONTAINER_NAME) \
-	$(DEV_CONTAINER_IMAGE_NAME) 
+	--network aws_labs_network \
+	--name aws_labs_dev_container \
+	aws_labs_dev_container:v1 \
+	
 
 	docker exec -u 0 $(DEV_CONTAINER_NAME) bash -c 'chown -R glue_user /home/glue_user/workspace'
 	docker exec -u 0 $(DEV_CONTAINER_NAME) bash -c 'chown -R glue_user /tmp/spark-events'
+
+
 
 stop-dev-container:
 	docker kill $(DEV_CONTAINER_NAME)
