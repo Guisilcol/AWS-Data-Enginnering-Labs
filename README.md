@@ -1,4 +1,4 @@
-# AWS Data Engineering Intensive Lab
+# AWS Data Engineering Lab
 
 Este repositório contém o ambiente que será usado durante o laboratório intensivo para aprender e praticar habilidades de engenharia de dados usando AWS. O laboratório cobre uma ampla gama de tópicos, incluindo ingestão de dados, APIs, streaming, bancos de dados, cloud, data lakehouse e muito mais.
 
