@@ -41,3 +41,18 @@ Cronograma
 
 Total de horas: 274
 
+Justificativa para a Instalação de Docker e WSL nos Desktops do Treinamento de Engenharia de Dados
+==================================================================================================
+
+Para garantir a eficiência do treinamento de engenharia de dados que será ministrado, é essencial que os desktops disponibilizados estejam equipados com os softwares Windows Subsystem for Linux (WSL) e Docker. 
+
+1. Ingestão de Dados
+Execução em Containers: Todas as origens de dados que utilizaremos na etapa de ingestão serão executadas em containers. Isso garante um ambiente controlado e replicável, essencial para a consistência do treinamento.
+
+2. Desenvolvimento, Codificação e Deploy
+Dev Container da AWS: Utilizaremos um Dev Container baseado na imagem disponibilizada no Docker Hub pela AWS. Essa imagem permite que possamos codificar e executar códigos utilizando as bibliotecas do AWS Glue, garantindo que todos os participantes tenham acesso às mesmas ferramentas e versões.
+Ferramentas Necessárias: O container incluirá todos os softwares necessários para as diversas etapas do treinamento, tais como Make, Terraform, AWS CLI, Git, entre outros. Isso assegura que o ambiente de desenvolvimento esteja completo e pronto para uso, sem necessidade de instalações adicionais.
+
+3. Performance e Viabilidade
+Importância do WSL para Docker: Embora seja possível executar Docker sem o WSL, a performance é significativamente inferior, tornando o uso inviável. Testes realizados nas máquinas pessoais do Guilherme mostraram que, com o uso do Docker em conjunto com o WSL, a performance foi superior, permitindo um uso eficiente dos containers.
+
